@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "proto.h": "c",
+        "unistd.h": "c",
+        "errno.h": "c"
+    }
+}

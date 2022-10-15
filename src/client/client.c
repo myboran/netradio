@@ -11,7 +11,7 @@
 #include <errno.h>
 
 #include "client.h"
-#include "proto.h"
+#include <proto.h>
 
 /*
 -M --mgroup  指定多播组
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
             perror("inet_pton");
         exit(EXIT_FAILURE);
     }
-    mreq.imr_ifindex = if_nametoindex("ens33");
+    mreq.imr_ifindex = if_nametoindex("eth0");
     if (setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
     {
         perror("setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq))");
