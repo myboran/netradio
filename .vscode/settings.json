@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "proto.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "client.h": "c",
+        "site_type.h": "c",
+        "socket.h": "c"
     }
 }

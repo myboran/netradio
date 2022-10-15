@@ -1,7 +1,7 @@
 #ifndef PROTO_H__
 #define PROTO_H__
 
-#include <site_type.h>
+#include "site_type.h"
 #include <stdint.h>
 
 #define DEFAULT_MGROUP "224.2.2.2"
