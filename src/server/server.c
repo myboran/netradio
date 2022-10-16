@@ -83,6 +83,7 @@ static int daemonize(void)
 static void daemon_exit(int s)
 {
     closelog();
+    exit(EXIT_SUCCESS);
 }
 
 static socket_init(void)

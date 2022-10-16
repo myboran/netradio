@@ -1,6 +1,8 @@
 #ifndef MEDIALIB_H__
 #define MEDIALIB_H__
 
+#include <site_type.h>
+
 struct mlib_listentry_st
 {
     chnid_t chnid;
