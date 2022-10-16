@@ -2,7 +2,7 @@
 #define SERVER_CONF_H__
 
 #define DEFAULT_MEDIADIR "/var/media/"
-#define DEFAULT_IF       "eth0"
+#define DEFAULT_IF       "ens33"
 
 enum
 {
@@ -19,5 +19,8 @@ struct server_conf_st
     char *ifname;
 };
 
+extern struct server_conf_st server_conf;
+extern int serversd;
+extern struct sockaddr_in sndaddr;
 
 #endif

@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
             perror("inet_pton");
         exit(EXIT_FAILURE);
     }
-    mreq.imr_ifindex = if_nametoindex("eth0");
+    mreq.imr_ifindex = if_nametoindex("ens33");
     if (setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
     {
         perror("setsockopt(sd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq))");
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
         perror("malloc(MSG_LIST_MAX)");
         exit(EXIT_FAILURE);
     }
-
+    serveraddr_len = sizeof(serveraddr);
     while (1)
     {
         len = recvfrom(sd, msg_list, MSG_LIST_MAX, 0, (void *)&serveraddr, &serveraddr_len);
@@ -201,9 +201,10 @@ int main(int argc, char *argv[])
         printf("channel %d: %s\n", pos->chnid, pos->desc);
     }
 
-    free(msg_list);
+    // free(msg_list);
 
-    while (1)
+    puts("Please enter:");
+    while (ret<1)
     {
         ret = scanf("%d", &chosenid);
         if (ret != 1)
@@ -226,6 +227,10 @@ int main(int argc, char *argv[])
         len = recvfrom(sd, msg_channel, MSG_CHANNEL_MAX, 0, (void *)&raddr, &raddr_len);
         if (raddr.sin_addr.s_addr != serveraddr.sin_addr.s_addr || raddr.sin_port != serveraddr.sin_port)
         {
+            fprintf(stderr, "raddr.sin_addr.s_addr: %d.\n", raddr.sin_addr.s_addr);
+            fprintf(stderr, "serveraddr.sin_addr.s_addr: %d.\n", serveraddr.sin_addr.s_addr);
+            fprintf(stderr, "raddr.sin_port: %d.\n", raddr.sin_port);
+            fprintf(stderr, "serveraddr.sin_port: %d.\n", serveraddr.sin_port);
             fprintf(stderr, "Ignore: address not math.\n");
             continue;
         }

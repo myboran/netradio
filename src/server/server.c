@@ -16,8 +16,9 @@
 
 #include "server_conf.h"
 #include "thr_channel.h"
-#include "medialib.h"
 #include "thr_list.h"
+#include "medialib.h"
+#include "mytbf.h"
 #include <proto.h>
 
 /*
@@ -36,7 +37,9 @@ struct server_conf_st server_conf = {
     .ifname = DEFAULT_IF,
     .runmode = RUN_DAEMON};
 
-extern struct server_conf_st server_conf;
+int serversd;
+struct sockaddr_in sndaddr;
+static struct mlib_listentry_st *list;
 
 static void printhelp(void)
 {
@@ -51,7 +54,7 @@ static int daemonize(void)
     if (pid < 0)
     {
         // perror("fork()");
-        syslog(LOG_ERR, "fork():", strerror(errno));
+        syslog(LOG_ERR, "fork():%s", strerror(errno));
         return -1;
     }
     if (pid > 0) // parent
@@ -82,13 +85,16 @@ static int daemonize(void)
 
 static void daemon_exit(int s)
 {
+    thr_list_destory();
+    thr_channel_destoryall();
+    mlib_freechnlist(list);
+    syslog(LOG_WARNING, "signal-%d caaught, exit now.", s);
     closelog();
     exit(EXIT_SUCCESS);
 }
 
-static socket_init(void)
+static int socket_init(void)
 {
-    int serversd;
     struct ip_mreqn mreq;
 
     serversd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -107,11 +113,17 @@ static socket_init(void)
         exit(EXIT_FAILURE);
     }
     // bind();
+    sndaddr.sin_family = AF_INET;
+    sndaddr.sin_port = htons(atoi(server_conf.rcvport));
+    // inet_pton(AF_INET, server_conf.mgroup, sndaddr.sin_addr.s_addr);
+    inet_pton(AF_INET, server_conf.mgroup, (void *)&(sndaddr.sin_addr.s_addr));
+    return 0;
 }
 
 int main(int argc, char *argv[])
 {
     int c, i;
+    int err;
     struct sigaction sa;
     sa.sa_handler = daemon_exit;
     sigemptyset(&sa.sa_mask);
@@ -134,7 +146,7 @@ int main(int argc, char *argv[])
             server_conf.mgroup = optarg;
             break;
         case 'P':
-            server_conf.runmode = optarg;
+            server_conf.rcvport = optarg;
             break;
         case 'F':
             server_conf.runmode = RUN_FOREGROUND;
@@ -174,23 +186,30 @@ int main(int argc, char *argv[])
     socket_init();
 
     /*获取频道信息*/
-    struct mlib_listentry_st *list;
+
     int list_size;
-    int err;
+
     err = mlib_getchnlist(&list, &list_size);
-    if ()
+    if (err)
     {
+        syslog(LOG_ERR, "mlib_getchnlist():%s", strerror(err));
+        exit(1);
     }
     /*创建节目单线程*/
-    thr_list_create(list, list_size);
+    if (thr_list_create(list, list_size))
+        exit(EXIT_FAILURE);
 
     /*if error*/
 
     /*创建频道线程*/
-    for (i = 0; i < list_size; i++)
+    for( i = 0; i < list_size; i++)
     {
-        thr_channel_create(list + i);
-        /*if error*/
+        err = thr_channel_create(list + i);
+        if(err)
+        {
+            fprintf(stderr, "thr_channel_create():%s\n", strerror(err));
+            exit(1);
+        }
     }
     syslog(LOG_DEBUG, "%d channel threads created.", i);
 

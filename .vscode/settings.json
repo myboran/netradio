@@ -2,6 +2,11 @@
     "files.associations": {
         "proto.h": "c",
         "unistd.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "site_type.h": "c",
+        "thr_list.h": "c",
+        "server_conf.h": "c",
+        "string.h": "c",
+        "socket.h": "c"
     }
 }

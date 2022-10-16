@@ -4,6 +4,6 @@
 #include "medialib.h"
 
 int thr_list_create(struct mlib_listentry_st *, int);
-int thr_list_destory(void);
+int thr_list_destroy(void);
 
 #endif

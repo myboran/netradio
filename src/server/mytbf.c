@@ -7,8 +7,14 @@
 #include <string.h>
 #include <pthread.h>
 #include <errno.h>
+#include <syslog.h>
 
+#include "server_conf.h"
+#include "thr_channel.h"
+#include "thr_list.h"
+#include "medialib.h"
 #include "mytbf.h"
+#include <proto.h>
 
 struct mytbf_st
 {
@@ -77,10 +83,13 @@ static void module_unload(void)
 
 static void module_load(void)
 {
-
-    if (pthread_create(&tid, NULL, thr_alrm, NULL))
+    int err;
+    err = pthread_create(&tid, NULL, thr_alrm, NULL);
+    if (err)
     {
-        fprintf(stderr, "pthread_create():%s\n", strerror(errno));
+        //TODO
+        // fprintf(stderr, "pthread_create():%s\n", strerror(errno));
+        syslog(LOG_ERR, "fork():%s", strerror(err));
         exit(EXIT_FAILURE);
     }
     atexit(module_unload);
